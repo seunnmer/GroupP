@@ -93,6 +93,7 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 @media(max-width:980px){.status-bar{width:100%;border-radius:24px}.status-inline-note{width:100%;white-space:normal}.hint-side{position:relative;top:auto;min-width:0;max-width:none}.hint-list{min-height:300px}.hint-item,.ai-hint-stage{min-height:300px}.hint-bubble,.hint-bubble.idle{width:100%;max-width:100%;margin:12px 0}.ai-robot-wrap,.ai-robot-wrap.idle-robot{width:104px;margin-right:28px}}
 .section-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:4px}
 .progress{font-size:14px;color:var(--muted)}
+.top-progress{text-align:right;font-size:15px;color:var(--muted);font-weight:800;margin-bottom:12px}
 .math-box{font-size:34px;font-weight:800;text-align:center;padding:26px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:24px;margin-bottom:18px}
 .math-enter-hint{margin-top:8px;font-size:13px;line-height:1.35;color:#6b7280;text-align:center;white-space:nowrap}
 .transfer-prompt{background:#fafafa;border:1px solid var(--line);border-radius:18px;padding:18px;white-space:pre-line;margin-bottom:14px;text-align:left}
@@ -180,7 +181,7 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 
 준비가 되면 화면 하단의 다음 버튼을 눌러 주세요.</div></div></section>
 
-<section class="screen" id="screen-learning"><div class="status-bar"><div class="status-title">학습용 AI 시스템</div><div class="status-logo-wrap"><img class="status-logo" id="statusLogo" src="robot_face_logo.png" alt="학습용 AI 시스템 로고"></div><div class="status-inline-note" id="statusInlineNote" aria-live="polite"><span class="status-mini-chart" aria-hidden="true"><span></span><span></span><span></span></span><span id="statusInlineText"></span></div></div><div class="card"><div class="learning-grid"><div><div class="question-pair"><div class="question-block"><div class="question-number" id="lq1Number"></div><div class="question-text" id="lq1Text"></div><div class="options" id="lq1Options"></div></div><div class="question-block"><div class="question-number" id="lq2Number"></div><div class="question-text" id="lq2Text"></div><div class="options" id="lq2Options"></div></div></div><div class="figure-box hidden" id="learningFigureBox"></div></div><div class="hint-side"><div class="hint-panel"><button class="hint-btn" id="learningHintBtn">AI 힌트 요청</button><div class="hint-count" id="hintCountText">남은 힌트 요청: 3회</div></div><div class="hint-list" id="learningHintList"></div></div></div></div></section>
+<section class="screen" id="screen-learning"><div class="status-bar"><div class="status-title">학습용 AI 시스템</div><div class="status-logo-wrap"><img class="status-logo" id="statusLogo" src="robot_face_logo.png" alt="학습용 AI 시스템 로고"></div><div class="status-inline-note" id="statusInlineNote" aria-live="polite"><span class="status-mini-chart" aria-hidden="true"><span></span><span></span><span></span></span><span id="statusInlineText"></span></div></div><div class="card"><div class="top-progress" id="learningProgress"></div><div class="learning-grid"><div><div class="question-pair"><div class="question-block"><div class="question-number" id="lq1Number"></div><div class="question-text" id="lq1Text"></div><div class="options" id="lq1Options"></div></div><div class="question-block"><div class="question-number" id="lq2Number"></div><div class="question-text" id="lq2Text"></div><div class="options" id="lq2Options"></div></div></div><div class="figure-box hidden" id="learningFigureBox"></div></div><div class="hint-side"><div class="hint-panel"><button class="hint-btn" id="learningHintBtn">AI 힌트 요청</button><div class="hint-count" id="hintCountText">남은 힌트 요청: 3회</div></div><div class="hint-list" id="learningHintList"></div></div></div></div></section>
 
 <section class="screen centered" id="screen-postjol-instruction"><div class="card"><div class="text">학습 단계가 종료되었습니다.
 이제 방금까지의 학습을 바탕으로 자신의 이해 수준과 학습 상태를 스스로 평가하게 됩니다.
@@ -201,9 +202,9 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 별도의 시간 제한은 없습니다.
 준비가 되면 화면 하단의 다음 버튼을 눌러 주세요.</div></div></section>
 
-<section class="screen" id="screen-final"><div class="card"><div id="finalBody"></div></div></section>
+<section class="screen" id="screen-final"><div class="card"><div class="top-progress" id="finalProgress"></div><div id="finalBody"></div></div></section>
 
-<section class="screen centered" id="screen-post-instruction"><div class="card"><div class="text">마지막으로 간단한 설문에 응답해 주세요.
+<section class="screen centered" id="screen-post-instruction"><div class="card"><div class="text">다음으로 간단한 설문에 응답해 주세요.
 준비가 되면 화면 하단의 ‘다음’ 버튼을 눌러 주세요.</div></div></section>
 
 
@@ -661,6 +662,8 @@ function showAIStatus(message, state){
   showHeaderStatus(message);
 }
 function renderLearning(){
+  const progressEl = qs('learningProgress');
+  if(progressEl) progressEl.textContent = `${learningIndex + 1}/${learningSets.length}`;
   const set = learningSets[learningIndex];
   const state = getLearningState(set.setId);
   state.visits += 1; currentSetEnterTime = Date.now();
@@ -729,6 +732,8 @@ function renderLearning(){
 
 
 function renderFinal(){
+  const progressEl = qs('finalProgress');
+  if(progressEl) progressEl.textContent = `${finalIndex + 1}/${finalItems.length}`;
   const item = finalItems[finalIndex];
   const state = getFinalState(item.testId); state.visits += 1; currentSetEnterTime = Date.now();
   state.enteredAt = new Date().toISOString();
