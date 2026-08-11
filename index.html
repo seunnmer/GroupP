@@ -149,10 +149,12 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 .operator-field label{display:block;font-size:20px;font-weight:800;margin-bottom:12px}
 .operator-warning{margin-top:8px;color:#dc2626;font-size:14px}
 .operator-actions{display:flex;justify-content:flex-end;margin-top:18px}
+.common-start-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;gap:38px;width:min(980px,100%)}
+.common-study-title{margin:0;font-size:38px;font-weight:800;line-height:1.35;letter-spacing:-.02em;word-break:keep-all}
 .common-start-btn{font-size:24px;font-weight:800;padding:23px 58px;border-radius:20px;min-width:260px;box-shadow:0 14px 30px rgba(16,163,127,.18)}
 #screen-participant-setup .operator-setup-card{width:min(560px,92vw)}
 #screen-system-start .intro-landing-card{width:min(820px,92vw)}
-@media(max-width:640px){.operator-setup-card{padding:30px 24px}.common-start-btn{font-size:21px;padding:20px 42px;min-width:220px}}
+@media(max-width:640px){.operator-setup-card{padding:30px 24px}.common-start-wrap{gap:30px}.common-study-title{font-size:29px}.common-start-btn{font-size:21px;padding:20px 42px;min-width:220px}}
 
 /* intro landing screen */
 .intro-landing-card{width:min(820px,92vw);min-height:520px;padding:52px 56px 50px;border-radius:34px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#edf8ff 0%,#f3fbff 38%,#ffffff 70%,#f8fbff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
@@ -182,7 +184,7 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 
 <section class="screen centered active" id="screen-participant-setup"><div class="card operator-setup-card"><div class="operator-field"><label for="participantNumberInput">참가자 번호</label><input type="text" id="participantNumberInput" maxlength="30" autocomplete="off" inputmode="numeric"><div class="operator-warning hidden" id="participantNumberWarning" role="alert">참가자 번호를 입력해 주세요.</div></div><div class="operator-actions"><button type="button" class="btn-primary" id="participantConfirmBtn">입력 완료</button></div></div></section>
 
-<section class="screen centered" id="screen-intro"><button type="button" class="btn-primary common-start-btn" id="introStartBtn">실험 시작하기</button></section>
+<section class="screen centered" id="screen-intro"><div class="common-start-wrap"><h1 class="common-study-title">온라인 학습 환경에서 학습 지원 방식이 학습 과정과 판단에 미치는 영향</h1><button type="button" class="btn-primary common-start-btn" id="introStartBtn">시작</button></div></section>
 
 <section class="screen centered" id="screen-start-instruction"><div class="card"><div class="instruction-retry-alert hidden" id="instructionRetryAlert" role="alert">이해 확인 문항 중 올바르게 답하지 못한 문항이 있습니다. 아래 안내문을 다시 읽고 두 학습 시스템의 차이를 충분히 숙지한 뒤 문항에 다시 답해 주세요.</div><div class="instruction-stack"><div class="instruction-block instruction-overview">본 연구는 온라인 학습 환경에서 학습자가 과학 개념을 학습하고 문제를 해결하는 과정을 살펴보기 위한 연구입니다. 최근 온라인 학습 환경에서는 학습자의 응답과 행동 기록을 분석하여 필요한 맞춤형 도움을 제공하는 AI 학습 보조 시스템이 활용되고 있습니다. 이에 본 연구에서는 연구진이 개발한 <span class="instruction-emphasis">맞춤형 AI 학습 시스템</span>과 <span class="instruction-emphasis">표준형 온라인 학습 시스템</span>을 비교하여, 두 환경에서 학습자가 삼투와 확산에 관한 과학 개념을 학습하는 과정을 확인하고자 합니다. 본 연구에는 다음과 같은 두 종류의 학습 시스템이 있으며, 참가자는 두 조건 중 하나에 무작위로 배정됩니다. 아래의 설명을 충분히 읽고 두 학습 시스템의 차이점을 확인해 주세요.</div><div class="system-compare-grid"><div class="instruction-block system-block"><div class="block-label">[맞춤형 AI 학습 시스템]</div><div>맞춤형 AI 학습 시스템은 학습 과정에서 나타나는 <span class="instruction-emphasis">문항별 응답 결과, 응답시간, 힌트 요청 시점 및 힌트 활용 방식을 실시간으로 분석</span>합니다. 시스템은 분석된 정보를 바탕으로 학습자의 현재 이해 상태를 추정하고, 이에 따라 후속 <span class="instruction-emphasis">문항의 난이도를 조정</span>합니다. 또한 학습자가 힌트를 요청하면 축적된 학습 데이터를 바탕으로 문항 해결에 필요한 힌트를 제공합니다. 이 과정은 데이터 분석 알고리즘에 따라 작동하므로, 문항 난이도 조정 및 힌트 생성에는 다소 시간이 걸릴 수 있습니다.</div></div><div class="instruction-block system-block"><div class="block-label">[표준형 온라인 학습 시스템]</div><div>표준형 온라인 학습 시스템은 <span class="instruction-emphasis">AI가 작동하지 않으며</span>, 학습자의 응답 결과, 응답시간, 힌트 요청 시점 및 힌트 활용 방식을 분석하지 않습니다. 이 시스템에서는 <span class="instruction-emphasis">사전에 설정된 문항과 힌트</span>가 고정된 순서로 제공됩니다. 따라서 학습자의 응답이나 학습 행동에 따른 <span class="instruction-emphasis">문항 난이도 조정은 이루어지지 않습니다</span>.</div></div></div></div></div></section>
 
