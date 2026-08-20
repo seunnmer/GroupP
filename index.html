@@ -157,6 +157,15 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 #screen-system-start .intro-landing-card{width:min(820px,92vw)}
 @media(max-width:640px){.operator-setup-card{padding:30px 24px}.common-start-wrap{gap:30px}.common-study-title{font-size:29px}.common-start-btn{font-size:21px;padding:20px 42px;min-width:220px}}
 
+/* final submission status */
+.submission-card{width:min(720px,92vw);text-align:center}
+.submission-status{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 10px;padding:17px 20px;border:1px solid #dbeafe;border-radius:16px;background:#f8fbff;color:#1e3a8a;font-size:17px;line-height:1.6}
+.submission-status.success{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+.submission-status.failed{border-color:#fecaca;background:#fff7ed;color:#9a3412}
+.submission-spinner{width:22px;height:22px;border-radius:50%;border:3px solid #bfdbfe;border-top-color:#2563eb;animation:submissionSpin 1s linear infinite;flex:none}
+.submission-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+@keyframes submissionSpin{to{transform:rotate(360deg)}}
+
 /* intro landing screen */
 .intro-landing-card{width:min(820px,92vw);min-height:520px;padding:52px 56px 50px;border-radius:34px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#edf8ff 0%,#f3fbff 38%,#ffffff 70%,#f8fbff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
 .intro-landing-card::before{content:"";position:absolute;left:54px;right:54px;top:70px;height:360px;border-radius:999px;background:linear-gradient(180deg,rgba(54,127,255,.08),rgba(16,163,127,.07) 58%,rgba(54,127,255,.035));filter:blur(7px);z-index:0;}
@@ -251,9 +260,10 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 <section class="screen" id="screen-demo"><div class="card"><div class="title">기본 정보</div><div class="text">마지막으로 기본 정보를 입력해 주세요.
 모두 입력 후 화면 하단의 제출 버튼을 눌러 주세요.</div></div><div class="card"><div class="field"><label>연령(만 나이)</label><input type="number" min="0" max="99" id="demoAge"></div><div class="field"><label>성별</label><select id="demoGender"><option value="">선택하세요</option><option>여성</option><option>남성</option><option>응답하지 않음</option></select></div><div class="field"><label>전공</label><input type="text" id="demoMajor"><div class="small hidden" id="majorWarning" style="color:#dc2626;margin-top:8px">한글로 입력해주세요.</div></div></div></section>
 
-<section class="screen centered" id="screen-end"><div class="card"><div class="text">실험이 모두 종료되었습니다.
+<section class="screen centered" id="screen-end"><div class="card submission-card"><div class="title" id="submissionTitle">응답을 저장하고 있습니다.</div><div class="submission-status" id="submissionStatus" role="status" aria-live="polite"><span class="submission-spinner" id="submissionSpinner" aria-hidden="true"></span><span id="submissionStatusText">화면을 닫지 말고 잠시 기다려 주세요.</span></div><div class="text hidden" id="submissionCompletionText">실험이 모두 종료되었습니다.
 실험에 참여해 주셔서 감사합니다.
-이제 실험자의 자리로 와주시면 됩니다.</div></div></section>
+이제 실험자의 자리로 와주시면 됩니다.</div><div class="text hidden" id="submissionFailureText">응답 데이터 저장에 실패했습니다.
+화면을 닫지 말고 실험자를 불러 주세요.</div><div class="submission-actions"><button type="button" class="btn-primary hidden" id="retrySubmissionBtn">다시 저장하기</button><button type="button" class="btn-secondary hidden" id="downloadBackupBtn">백업 파일 저장</button></div></div></section>
 
 </div></div>
 <div class="floating-next"><button class="btn-primary" id="nextBtn">다음</button></div>
@@ -357,7 +367,7 @@ let distractorSecretSpaceTimer = null;
 
 const participantId = 'P_' + Date.now() + '_' + Math.floor(Math.random()*100000);
 const studyData = {
-  version:'odca_nonfunctional_ai_irb_v7',
+  version:'odca_nonfunctional_ai_irb_v11',
   participantId,
   participantNumber:null,
   participantNumberEnteredAt:null,
@@ -392,12 +402,12 @@ const studyData = {
     screen:{ width:window.screen?.width || null, height:window.screen?.height || null },
     viewport:{ width:window.innerWidth || null, height:window.innerHeight || null }
   },
-  submission:{ status:'not_submitted', attemptedAt:null, submittedAt:null, error:null, retryCount:0 },
+  submission:{ status:'not_submitted', attemptedAt:null, submittedAt:null, error:null, retryCount:0, schemaMode:null },
   completedAt:null
 };
 window.studyData = studyData;
 
-function saveState(){ studyData.lastSavedAt = new Date().toISOString(); if(studyData.clientMeta && studyData.clientMeta.viewport){ studyData.clientMeta.viewport = { width:window.innerWidth || null, height:window.innerHeight || null }; } localStorage.setItem('odcaPseudoAIV7_data', JSON.stringify(studyData)); }
+function saveState(){ studyData.lastSavedAt = new Date().toISOString(); if(studyData.clientMeta && studyData.clientMeta.viewport){ studyData.clientMeta.viewport = { width:window.innerWidth || null, height:window.innerHeight || null }; } localStorage.setItem('odcaPseudoAIV11_data', JSON.stringify(studyData)); }
 function qs(id){ return document.getElementById(id); }
 function cloneData(){ return JSON.parse(JSON.stringify(studyData)); }
 window.getCollectedData = cloneData;
@@ -1138,10 +1148,10 @@ function buildDerivedSummary(data){
   };
 }
 
-function buildSupabaseRow(){
+function buildSupabaseRow(includeV11Columns=true){
   updateClientMeta();
   const data = window.getCollectedData();
-  return {
+  const row = {
     participant_id: data.participantId,
     condition: data.condition,
     version: data.version,
@@ -1159,33 +1169,56 @@ function buildSupabaseRow(){
     summary: buildDerivedSummary(data),
     raw_payload: data
   };
+  if(includeV11Columns){
+    row.participant_number = data.participantNumber || null;
+    row.understanding_check = data.understandingCheck || {};
+  }
+  return row;
+}
+
+function isMissingV11ColumnError(error){
+  const code = String(error?.code || '');
+  const message = [error?.message, error?.details, error?.hint].filter(Boolean).join(' ').toLowerCase();
+  const mentionsV11Column = message.includes('participant_number') || message.includes('understanding_check');
+  return mentionsV11Column && (code === 'PGRST204' || code === '42703' || message.includes('schema cache') || message.includes('column'));
 }
 
 async function sendDataToSupabase(force=false){
-  const submissionKey = `odcaPseudoAIV7_submitted_${studyData.participantId}`;
+  const submissionKey = `odcaPseudoAIV11_submitted_${studyData.participantId}`;
   if(!force && localStorage.getItem(submissionKey) === '1') return { ok:true, skipped:true };
 
   updateClientMeta();
   studyData.submission.attemptedAt = new Date().toISOString();
   studyData.submission.status = 'submitting';
   studyData.submission.retryCount = (studyData.submission.retryCount || 0) + 1;
+  studyData.submission.schemaMode = null;
   saveState();
 
   try{
-    const row = buildSupabaseRow();
-    const { error } = await supabaseClient
+    let row = buildSupabaseRow(true);
+    let { error } = await supabaseClient
       .from(SUPABASE_TABLE)
       .upsert([row], { onConflict: 'participant_id' });
+
+    let fallbackUsed = false;
+    if(error && isMissingV11ColumnError(error)){
+      row = buildSupabaseRow(false);
+      ({ error } = await supabaseClient
+        .from(SUPABASE_TABLE)
+        .upsert([row], { onConflict: 'participant_id' }));
+      fallbackUsed = !error;
+    }
 
     if(error) throw error;
 
     studyData.submission.status = 'submitted';
     studyData.submission.submittedAt = new Date().toISOString();
     studyData.submission.error = null;
+    studyData.submission.schemaMode = fallbackUsed ? 'legacy_json' : 'v11_columns';
     saveState();
     localStorage.setItem(submissionKey, '1');
     console.log('✅ Supabase 저장 성공');
-    return { ok:true };
+    return { ok:true, fallbackUsed };
   }catch(error){
     studyData.submission.status = 'failed';
     studyData.submission.error = {
@@ -1194,6 +1227,7 @@ async function sendDataToSupabase(force=false){
       hint: error?.hint || null,
       code: error?.code || null
     };
+    studyData.submission.schemaMode = null;
     saveState();
     console.error('❌ Supabase 저장 실패:', error);
     return { ok:false, error };
@@ -1203,6 +1237,53 @@ async function sendDataToSupabase(force=false){
 window.sendDataToSupabase = sendDataToSupabase;
 window.buildSupabaseRow = buildSupabaseRow;
 window.buildDerivedSummary = buildDerivedSummary;
+
+function setSubmissionUI(state){
+  const title = qs('submissionTitle');
+  const status = qs('submissionStatus');
+  const statusText = qs('submissionStatusText');
+  const spinner = qs('submissionSpinner');
+  const completion = qs('submissionCompletionText');
+  const failure = qs('submissionFailureText');
+  const retry = qs('retrySubmissionBtn');
+  const backup = qs('downloadBackupBtn');
+  if(!title || !status || !statusText) return;
+
+  status.classList.remove('success','failed');
+  completion?.classList.add('hidden');
+  failure?.classList.add('hidden');
+  retry?.classList.add('hidden');
+  backup?.classList.add('hidden');
+
+  if(state === 'saving'){
+    title.textContent = '응답을 저장하고 있습니다.';
+    statusText.textContent = '화면을 닫지 말고 잠시 기다려 주세요.';
+    spinner?.classList.remove('hidden');
+    return;
+  }
+  if(state === 'success'){
+    title.textContent = '저장이 완료되었습니다.';
+    status.classList.add('success');
+    statusText.textContent = '응답 데이터가 안전하게 저장되었습니다.';
+    spinner?.classList.add('hidden');
+    completion?.classList.remove('hidden');
+    return;
+  }
+  title.textContent = '저장에 실패했습니다.';
+  status.classList.add('failed');
+  statusText.textContent = '화면을 닫지 말고 실험자를 불러 주세요.';
+  spinner?.classList.add('hidden');
+  failure?.classList.remove('hidden');
+  retry?.classList.remove('hidden');
+  backup?.classList.remove('hidden');
+}
+
+async function attemptFinalSubmission(force=false){
+  setSubmissionUI('saving');
+  const result = await sendDataToSupabase(force);
+  setSubmissionUI(result.ok ? 'success' : 'failed');
+  return result;
+}
 
 window.addEventListener('resize', () => {
   updateClientMeta();
@@ -1217,10 +1298,13 @@ window.addEventListener('resize', () => {
     const beforeScreenId = getCurrentScreenId();
     nextAction();
     if(beforeScreenId === 'screen-demo'){
-      await sendDataToSupabase();
+      await attemptFinalSubmission();
     }
   });
 })();
+
+qs('retrySubmissionBtn')?.addEventListener('click', ()=>attemptFinalSubmission(true));
+qs('downloadBackupBtn')?.addEventListener('click', ()=>window.exportCollectedData());
 </script>
 </body>
 </html>
