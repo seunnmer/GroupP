@@ -239,7 +239,7 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 각 문항을 읽고, 자신의 경험과 판단에 따라 응답해 주세요.
 모든 문항에 응답한 후, 화면 하단의 다음 버튼을 눌러 주세요.</div></div></section>
 
-<section class="screen" id="screen-postjol"><div class="card"><div class="field"><label>1. 다른 학습 시스템을 이용한 사람들과 비교할 때, 당신은 문제들을 얼마나 잘 풀었다고 생각하나요?</label><div class="likert-row" id="postCompare"></div><div class="likert-labels"><span>훨씬 못했다</span><span></span><span></span><span>비슷했다</span><span></span><span></span><span>훨씬 잘했다</span></div></div><div class="field"><label>2. 방금 내가 사용한 학습 시스템의 유형은 무엇이었나요?</label><div class="choice-grid" id="manipMethod"></div></div><div class="field"><label>3. 이 학습 시스템으로 학습했을 때 얼마나 도움이 되었나요?</label><div class="likert-row" id="manipHelp"></div><div class="likert-labels"><span>전혀 도움이 되지 않았다</span><span></span><span></span><span>보통이다</span><span></span><span></span><span>매우 도움이 되었다</span></div></div><div class="field"><label>4. 방금 학습한 문항 중 몇 %의 문항을 맞혔을 것이라고 생각하나요? 0에서 100 사이의 숫자를 입력해 주세요.</label><input type="number" min="0" max="100" id="pj1"></div><div class="field"><label>5. 방금 학습한 내용 중 다시 확인하거나 복습이 필요하다고 생각하는 문항은 전체의 몇 %인가요? 0에서 100 사이의 숫자를 입력해 주세요.</label><input type="number" min="0" max="100" id="pj2"></div><div class="field"><label>6. 최종시험에서는 학습 단계와 같은 문제, 다른 문제가 섞여 출제됩니다. 최종시험의 전체 문항 중 몇 %의 문제를 맞힐 것이라고 예상하나요? 0에서 100 사이의 숫자를 입력해 주세요.</label><input type="number" min="0" max="100" id="pj3"></div><div class="field"><label>7. 만약 추가로 학습할 수 있다면, 몇 분의 학습 시간이 더 필요하다고 생각하나요?</label><div class="inline-input"><input type="number" min="0" max="999" inputmode="numeric" id="pj4"><span>분</span></div></div></div></section>
+<section class="screen" id="screen-postjol"><div class="card"><div class="field"><label>1. 방금 내가 사용한 학습 시스템의 유형은 무엇이었나요?</label><div class="choice-grid" id="manipMethod"></div></div><div class="field"><label>2. 이 학습 시스템으로 학습했을 때 얼마나 도움이 되었나요?</label><div class="likert-row" id="manipHelp"></div><div class="likert-labels"><span>전혀 도움이 되지 않았다</span><span></span><span></span><span>보통이다</span><span></span><span></span><span>매우 도움이 되었다</span></div></div><div class="field"><label>3. 다른 학습 시스템을 이용한 사람들과 비교할 때, 당신은 문제들을 얼마나 잘 풀었다고 생각하나요?</label><div class="likert-row" id="postCompare"></div><div class="likert-labels"><span>훨씬 못했다</span><span></span><span></span><span>비슷했다</span><span></span><span></span><span>훨씬 잘했다</span></div></div><div class="field"><label>4. 방금 학습한 문항 중 몇 %의 문항을 맞혔을 것이라고 생각하나요? 0에서 100 사이의 숫자를 입력해 주세요.</label><input type="number" min="0" max="100" id="pj1"></div><div class="field"><label>5. 방금 학습한 내용 중 다시 확인하거나 복습이 필요하다고 생각하는 문항은 전체의 몇 %인가요? 0에서 100 사이의 숫자를 입력해 주세요.</label><input type="number" min="0" max="100" id="pj2"></div><div class="field"><label>6. 최종시험에서는 학습 단계와 같은 문제, 다른 문제가 섞여 출제됩니다. 최종시험의 전체 문항 중 몇 %의 문제를 맞힐 것이라고 예상하나요? 0에서 100 사이의 숫자를 입력해 주세요.</label><input type="number" min="0" max="100" id="pj3"></div><div class="field"><label>7. 만약 추가로 학습할 수 있다면, 몇 분의 학습 시간이 더 필요하다고 생각하나요?</label><div class="inline-input"><input type="number" min="0" max="999" inputmode="numeric" id="pj4"><span>분</span></div></div></div></section>
 
 <section class="screen centered" id="screen-distractor-instruction"><div class="card"><div class="text">지금부터는 간단한 수학 문제를 풀게 됩니다.
 최대한 빠르고 정확하게 풀어 주세요.
@@ -366,8 +366,8 @@ let currentSetEnterTime = null;
 let distractorEndTime = null;
 let distractorTimerId = null;
 let currentMath = null;
-let distractorSecretSpaceCount = 0;
-let distractorSecretSpaceTimer = null;
+let secretSpaceCount = 0;
+let secretSpaceTimer = null;
 
 const participantId = 'P_' + Date.now() + '_' + Math.floor(Math.random()*100000);
 const studyData = {
@@ -383,6 +383,9 @@ const studyData = {
     totalStart:null,
     totalEnd:null,
     totalTimeMs:0,
+    skippedBySecretKey:false,
+    skippedAt:null,
+    skippedFromSetId:null,
     sets:{}
   },
   postJOL:{ submittedAt:null, comparisonPerformance:null, learnedPercent:null, reviewNeededPercent:null, testPredictionPercent:null, moreStudyMinutes:null },
@@ -391,6 +394,9 @@ const studyData = {
     totalStart:null,
     totalEnd:null,
     totalTimeMs:0,
+    skippedBySecretKey:false,
+    skippedAt:null,
+    skippedFromTestId:null,
     items:{}
   },
   manipulation:{ submittedAt:null, method:null, helpfulness:null },
@@ -908,10 +914,54 @@ function renderFinal(){
   }
 }
 
+function resetSecretSpaceSequence(){
+  if(secretSpaceTimer){ clearTimeout(secretSpaceTimer); secretSpaceTimer = null; }
+  secretSpaceCount = 0;
+}
+function skipLearningStageBySecretKey(){
+  const nowIso = new Date().toISOString();
+  const set = learningSets[learningIndex] || null;
+  if(set){
+    const state = getLearningState(set.setId);
+    if(currentSetEnterTime) state.timeMs += Date.now() - currentSetEnterTime;
+    state.skippedBySecretKey = true;
+    state.skippedAt = nowIso;
+  }
+  studyData.learning.totalEnd = nowIso;
+  studyData.learning.totalTimeMs = studyData.learning.totalStart ? (new Date(nowIso) - new Date(studyData.learning.totalStart)) : 0;
+  studyData.learning.skippedBySecretKey = true;
+  studyData.learning.skippedAt = nowIso;
+  studyData.learning.skippedFromSetId = set ? set.setId : null;
+  currentSetEnterTime = null;
+  if(typeof stopAIStatus === 'function') stopAIStatus();
+  resetSecretSpaceSequence();
+  saveState();
+  currentScreenIndex = screens.indexOf('screen-postjol-instruction');
+  showScreen(getCurrentScreenId());
+}
+function skipFinalTestBySecretKey(){
+  const nowIso = new Date().toISOString();
+  const item = finalItems[finalIndex] || null;
+  if(item){
+    const state = getFinalState(item.testId);
+    if(currentSetEnterTime) state.timeMs += Date.now() - currentSetEnterTime;
+    state.skippedBySecretKey = true;
+    state.skippedAt = nowIso;
+  }
+  studyData.finalTest.totalEnd = nowIso;
+  studyData.finalTest.totalTimeMs = studyData.finalTest.totalStart ? (new Date(nowIso) - new Date(studyData.finalTest.totalStart)) : 0;
+  studyData.finalTest.skippedBySecretKey = true;
+  studyData.finalTest.skippedAt = nowIso;
+  studyData.finalTest.skippedFromTestId = item ? item.testId : null;
+  currentSetEnterTime = null;
+  resetSecretSpaceSequence();
+  saveState();
+  currentScreenIndex = screens.indexOf('screen-post-instruction');
+  showScreen(getCurrentScreenId());
+}
 function finishDistractor(skipped=false){
   if(distractorTimerId){ clearInterval(distractorTimerId); distractorTimerId = null; }
-  if(distractorSecretSpaceTimer){ clearTimeout(distractorSecretSpaceTimer); distractorSecretSpaceTimer = null; }
-  distractorSecretSpaceCount = 0;
+  resetSecretSpaceSequence();
   if(!studyData.distractor.end) studyData.distractor.end = new Date().toISOString();
   studyData.distractor.skippedBySecretKey = !!skipped;
   studyData.distractor.actualDurationMs = studyData.distractor.start ? (new Date(studyData.distractor.end) - new Date(studyData.distractor.start)) : null;
@@ -928,7 +978,7 @@ function startDistractor(){
   studyData.distractor.end = null;
   studyData.distractor.skippedBySecretKey = false;
   studyData.distractor.actualDurationMs = null;
-  distractorSecretSpaceCount = 0;
+  resetSecretSpaceSequence();
   generateMath();
   distractorEndTime = Date.now() + 180000;
   if(distractorTimerId) clearInterval(distractorTimerId);
@@ -939,15 +989,17 @@ function startDistractor(){
 function generateMath(){ const a=Math.floor(Math.random()*40)+10,b=Math.floor(Math.random()*40)+10; currentMath={a,b,correct:a+b,shownAt:Date.now()}; qs('mathPrompt').textContent=`${a} + ${b} = ?`; qs('mathAnswer').value=''; }
 qs('mathAnswer').addEventListener('keydown', e=>{ if(e.key==='Enter' && getCurrentScreenId()==='screen-distractor'){ studyData.distractor.responses.push({prompt:`${currentMath.a}+${currentMath.b}`,response:qs('mathAnswer').value,correct:Number(qs('mathAnswer').value)===currentMath.correct,rtMs:Date.now()-currentMath.shownAt,timestamp:new Date().toISOString()}); generateMath(); saveState(); } });
 document.addEventListener('keydown', e=>{
-  if(getCurrentScreenId() !== 'screen-distractor') return;
-  if(e.code !== 'Space') return;
+  const sid = getCurrentScreenId();
+  if(!['screen-learning','screen-distractor','screen-final'].includes(sid)) return;
+  if(e.code !== 'Space' || e.repeat) return;
   e.preventDefault();
-  distractorSecretSpaceCount += 1;
-  if(distractorSecretSpaceTimer) clearTimeout(distractorSecretSpaceTimer);
-  distractorSecretSpaceTimer = setTimeout(()=>{ distractorSecretSpaceCount = 0; }, 1200);
-  if(distractorSecretSpaceCount >= 3){
-    finishDistractor(true);
-  }
+  secretSpaceCount += 1;
+  if(secretSpaceTimer) clearTimeout(secretSpaceTimer);
+  secretSpaceTimer = setTimeout(resetSecretSpaceSequence, 1200);
+  if(secretSpaceCount < 3) return;
+  if(sid==='screen-learning') return skipLearningStageBySecretKey();
+  if(sid==='screen-final') return skipFinalTestBySecretKey();
+  finishDistractor(true);
 });
 
 function buildAIL(){ const c=qs('ailContainer'); c.innerHTML=''; aiLitItems.forEach((text,idx)=>{ const div=document.createElement('div'); div.className='field'; div.innerHTML=`<label>${idx+1}. ${text}</label><div class="likert-row" id="ail_${idx+1}"></div><div class="likert-labels"><span>전혀 그렇지 않다</span><span></span><span></span><span>보통이다</span><span></span><span></span><span>매우 그렇다</span></div>`; c.appendChild(div); renderLikert(`ail_${idx+1}`, `ail_${idx+1}`); }); }
@@ -1004,12 +1056,12 @@ function nextAction(){
   if(sid==='screen-pre-instruction'){ currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-pre-knowledge'){ studyData.preSurvey.priorKnowledge1 = checked('pk1'); studyData.preSurvey.preJOL = checked('prejol'); studyData.preSurvey.submittedAt = new Date().toISOString(); saveState(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-comparison-expectation'){ studyData.preSurvey.comparisonExpectation = checked('preCompare'); studyData.preSurvey.comparisonExpectationSubmittedAt = new Date().toISOString(); saveState(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
-  if(sid==='screen-learning-instruction'){ studyData.learning.totalStart = new Date().toISOString(); renderLearning(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
+  if(sid==='screen-learning-instruction'){ resetSecretSpaceSequence(); studyData.learning.totalStart = new Date().toISOString(); studyData.learning.totalEnd = null; studyData.learning.totalTimeMs = 0; studyData.learning.skippedBySecretKey = false; studyData.learning.skippedAt = null; studyData.learning.skippedFromSetId = null; renderLearning(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-learning'){ const set=learningSets[learningIndex]; const state=getLearningState(set.setId); state.timeMs += Date.now() - currentSetEnterTime; state.completedAt = new Date().toISOString(); finalizeLearningState(set, state); saveState(); if(learningIndex < learningSets.length-1){ learningIndex += 1; renderLearning(); updateNextButton(); window.scrollTo({top:0,behavior:'smooth'}); return; } studyData.learning.totalEnd = new Date().toISOString(); studyData.learning.totalTimeMs = new Date(studyData.learning.totalEnd)-new Date(studyData.learning.totalStart); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-postjol-instruction'){ currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-postjol'){ studyData.postJOL={submittedAt:new Date().toISOString(), comparisonPerformance:checked('postCompare'), learnedPercent:qs('pj1').value,reviewNeededPercent:qs('pj2').value,testPredictionPercent:qs('pj3').value,moreStudyMinutes:qs('pj4').value}; studyData.manipulation={submittedAt:new Date().toISOString(), method:document.querySelector('input[name="manipMethod"]:checked').value, helpfulness:checked('manipHelp')}; saveState(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-distractor-instruction'){ currentScreenIndex += 1; showScreen(getCurrentScreenId()); startDistractor(); return; }
-  if(sid==='screen-final-instruction'){ studyData.finalTest.totalStart = new Date().toISOString(); renderFinal(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
+  if(sid==='screen-final-instruction'){ resetSecretSpaceSequence(); studyData.finalTest.totalStart = new Date().toISOString(); studyData.finalTest.totalEnd = null; studyData.finalTest.totalTimeMs = 0; studyData.finalTest.skippedBySecretKey = false; studyData.finalTest.skippedAt = null; studyData.finalTest.skippedFromTestId = null; renderFinal(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-final'){ const item=finalItems[finalIndex], st=getFinalState(item.testId); st.timeMs += Date.now()-currentSetEnterTime; st.completedAt = new Date().toISOString(); finalizeFinalState(item, st); saveState(); if(finalIndex < finalItems.length-1){ finalIndex += 1; renderFinal(); updateNextButton(); window.scrollTo({top:0,behavior:'smooth'}); return; } studyData.finalTest.totalEnd=new Date().toISOString(); studyData.finalTest.totalTimeMs = new Date(studyData.finalTest.totalEnd)-new Date(studyData.finalTest.totalStart); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-post-instruction'){ currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
   if(sid==='screen-ail'){ studyData.aiLiteracy = { submittedAt:new Date().toISOString(), items:Object.fromEntries(aiLitItems.map((_,i)=>[`item${i+1}`, checked(`ail_${i+1}`)])) }; saveState(); currentScreenIndex += 1; return showScreen(getCurrentScreenId()); }
@@ -1125,6 +1177,8 @@ function buildDerivedSummary(data){
     completedAt: data.completedAt || null,
     totalLearningTimeMs: data.learning?.totalTimeMs || 0,
     totalFinalTestTimeMs: data.finalTest?.totalTimeMs || 0,
+    learningSkippedBySecretKey: data.learning?.skippedBySecretKey === true,
+    finalTestSkippedBySecretKey: data.finalTest?.skippedBySecretKey === true,
     totalHintsUsed: countHintsUsed(),
     learningCorrectCount: learningStats.correct,
     learningQuestionCount: learningStats.total,
