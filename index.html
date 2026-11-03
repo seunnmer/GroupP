@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>과학 개념 학습 활동</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
 :root{--bg:#f7f7f8;--panel:#fff;--soft:#f3f4f6;--line:#e5e7eb;--text:#111827;--muted:#6b7280;--accent:#10a37f;--accent-soft:#e8fff8;--blue:#2563eb;--blue-soft:#eff6ff;--radius:22px;--shadow:0 12px 32px rgba(15,23,42,.08);}
 *{box-sizing:border-box}
@@ -35,8 +36,18 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 .likert-option input{display:none}
 .likert-option.selected{border-color:var(--accent);background:#f0fdf9}
 .likert-labels{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;font-size:12px;color:var(--muted);margin-top:6px;text-align:center}
-.status-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 18px;border-radius:999px;background:#f3fbff;border:1px solid rgba(59,130,246,.14);width:max-content;max-width:100%;margin-bottom:18px;font-weight:800;color:#1f3b6d;box-shadow:0 6px 18px rgba(15,23,42,.035)}
+.status-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 18px 10px 18px;border-radius:999px;background:#f3fbff;border:1px solid rgba(59,130,246,.14);width:max-content;max-width:100%;margin-bottom:18px;font-weight:800;color:#1f3b6d;box-shadow:0 6px 18px rgba(15,23,42,.035)}
+.status-logo-wrap{width:42px;height:42px;border-radius:999px;background:#ffffff;border:1px solid rgba(59,130,246,.12);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+.status-logo{width:38px;height:32px;object-fit:contain;display:block;filter:none;transform:none}
 .status-title{font-size:18px;letter-spacing:-.02em;white-space:nowrap}
+.status-inline-note{display:none;align-items:center;gap:10px;padding:8px 12px;border-radius:999px;background:#ffffff;border:1px solid #d7efe7;color:#315f54;font-size:14px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+.status-inline-note.show{display:flex}
+.status-mini-chart{display:inline-flex;align-items:flex-end;gap:3px;width:18px;height:14px;flex:none}
+.status-mini-chart span{display:block;width:4px;border-radius:999px;background:#7ec9b3;animation:statusBars 1.15s ease-in-out infinite}
+.status-mini-chart span:nth-child(1){height:6px;animation-delay:0s}
+.status-mini-chart span:nth-child(2){height:12px;animation-delay:.16s}
+.status-mini-chart span:nth-child(3){height:8px;animation-delay:.32s}
+@keyframes statusBars{0%,100%{transform:scaleY(.7);opacity:.45}50%{transform:scaleY(1.08);opacity:1}}
 .system-toast{position:fixed;top:26px;left:50%;transform:translateX(-50%);z-index:60;background:#0f172a;color:white;padding:16px 22px;border-radius:999px;box-shadow:0 18px 40px rgba(15,23,42,.25);display:none;align-items:center;gap:14px;font-weight:700}
 .spinner{width:22px;height:22px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#34d399;animation:spin 1s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -55,18 +66,36 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 .final-figure img,.final-figure svg{max-width:520px;max-height:320px}
 .inline-input{display:flex;align-items:center;gap:10px;max-width:220px}
 .inline-input input{width:130px}
-.hint-panel{position:sticky;top:20px;border:1px solid var(--line);border-radius:18px;padding:18px;background:#f8fbff}
+ .hint-side{position:sticky;top:20px;display:flex;flex-direction:column;gap:14px;overflow:visible;min-width:330px;max-width:360px}
+.hint-panel{border:1px solid var(--line);border-radius:18px;padding:18px;background:#f8fbff;min-height:118px;overflow:visible}
 .hint-btn{width:100%;background:#eef2ff;color:#1e3a8a}
 .hint-count{margin-top:10px;font-size:13px;color:var(--muted)}
-.hint-list{margin-top:14px;display:grid;gap:10px}
-.hint-item{border:1px solid #dbeafe;background:#fff;border-radius:16px;padding:12px 14px;display:none}
-.hint-item.show{display:block}
-.hint-item .num{font-size:13px;color:#2563eb;font-weight:700;margin-bottom:6px}
-.hint-item .body{font-size:15px;white-space:pre-line;min-height:20px}
+.hint-list{position:relative;width:100%;min-height:330px;margin-top:0;pointer-events:none;z-index:8;overflow:visible}
+.hint-item{position:relative;width:100%;min-height:315px;border:0;background:transparent;border-radius:0;padding:0;overflow:visible;display:block}
+.ai-hint-stage{position:relative;width:100%;min-height:315px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow:visible}
+.hint-bubble{position:relative;width:100%;max-width:100%;margin:14px 0 14px 0;background:#fff;border:1px solid #d9e6ff;border-radius:22px;padding:16px 17px;box-sizing:border-box;box-shadow:0 8px 18px rgba(37,99,235,.04);opacity:0;transform:translateY(10px) scale(.98);z-index:3;animation:bubbleAppear .26s ease forwards .34s}
+.hint-bubble::after{content:"";position:absolute;right:44px;bottom:-10px;width:18px;height:18px;background:#fff;border-right:1px solid #d9e6ff;border-bottom:1px solid #d9e6ff;transform:rotate(45deg)}
+.hint-bubble .body{position:relative;font-size:15px;line-height:1.72;white-space:pre-wrap;min-height:24px;color:#111827;word-break:keep-all;letter-spacing:-.01em}
+.hint-bubble .ghost{visibility:hidden;white-space:pre-wrap}
+.hint-bubble .typed{position:absolute;left:0;top:0;width:100%;white-space:pre-wrap}
+.hint-bubble.idle{width:100%;max-width:100%;margin:14px 0 14px 0;padding:14px 16px;border-color:#d7efe7;background:#fbfffd;box-shadow:none}
+.hint-bubble.idle .body{font-size:14px;line-height:1.65;color:#315f54}
+.hint-bubble.idle::after{right:44px;border-right-color:#d7efe7;border-bottom-color:#d7efe7;background:#fbfffd}
+.ai-robot-wrap{position:relative;align-self:flex-end;width:118px;margin:0 32px 0 0;z-index:2;background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important;opacity:0;transform:translateY(18px) scale(.98);animation:robotRise .42s cubic-bezier(.2,.8,.2,1) forwards}
+.ai-robot-wrap.idle-robot{width:118px;margin-right:32px}
+.hint-avatar{width:100%;height:auto;display:block;background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important;transform:none!important;animation:robotIdle 3.2s ease-in-out infinite .6s}
+.hint-item.instant .ai-robot-wrap,.hint-item.instant .hint-bubble{opacity:1;transform:none;animation:none}
+.hint-item.instant .hint-avatar{animation:robotIdle 3.2s ease-in-out infinite}
+@keyframes robotRise{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes bubbleAppear{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes robotIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.ai-thinking-dots{display:inline-flex;gap:3px;margin-left:4px;vertical-align:middle}.ai-thinking-dots span{width:4px;height:4px;border-radius:999px;background:#9bc9ba;opacity:.35;animation:dotPulse 1.1s infinite}.ai-thinking-dots span:nth-child(2){animation-delay:.16s}.ai-thinking-dots span:nth-child(3){animation-delay:.32s}@keyframes dotPulse{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+@media(max-width:980px){.status-bar{width:100%;border-radius:24px}.status-inline-note{width:100%;white-space:normal}.hint-side{position:relative;top:auto;min-width:0;max-width:none}.hint-list{min-height:300px}.hint-item,.ai-hint-stage{min-height:300px}.hint-bubble,.hint-bubble.idle{width:100%;max-width:100%;margin:12px 0}.ai-robot-wrap,.ai-robot-wrap.idle-robot{width:104px;margin-right:28px}}
 .section-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:4px}
 .progress{font-size:14px;color:var(--muted)}
 .top-progress{text-align:right;font-size:15px;color:var(--muted);font-weight:800;margin-bottom:12px}
 .math-box{font-size:34px;font-weight:800;text-align:center;padding:26px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:24px;margin-bottom:18px}
+.math-enter-hint{margin-top:8px;font-size:13px;line-height:1.35;color:#6b7280;text-align:center;white-space:nowrap}
 .transfer-prompt{background:#fafafa;border:1px solid var(--line);border-radius:18px;padding:18px;white-space:pre-line;margin-bottom:14px;text-align:left}
 .choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:1080px;margin:0 auto}
 .transfer-12-wrap{display:flex;flex-direction:column;gap:18px;max-width:1120px;margin:0 auto}
@@ -114,7 +143,6 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 .understanding-option input{margin-top:5px;accent-color:var(--accent)}
 @media (max-width: 820px){.system-compare-grid{grid-template-columns:1fr}.instruction-block{padding:17px}.instruction-heading{font-size:22px}}
 @media (max-width: 980px){.learning-grid{grid-template-columns:1fr}.question-pair{grid-template-columns:1fr}.shell{padding:18px 18px 100px}.floating-next{right:16px;bottom:16px}.card{padding:20px}.question-text{font-size:18px}}
-@media(max-width:980px){.status-bar{width:100%;border-radius:24px}}
 
 /* operator-only participant setup and common participant start */
 .operator-setup-card{width:min(560px,92vw);padding:36px 38px;border-radius:24px}
@@ -139,17 +167,29 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 @keyframes submissionSpin{to{transform:rotate(360deg)}}
 
 /* intro landing screen */
-.intro-landing-card{width:min(820px,92vw);min-height:520px;padding:52px 56px 50px;border-radius:34px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#edf8ff 0%,#f3fbff 38%,#ffffff 70%,#f8fbff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;}
+.intro-landing-card{width:min(820px,92vw);min-height:520px;padding:52px 56px 50px;border-radius:34px;text-align:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#edf8ff 0%,#f3fbff 38%,#ffffff 70%,#f8fbff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
 .intro-landing-card::before{content:"";position:absolute;left:54px;right:54px;top:70px;height:360px;border-radius:999px;background:linear-gradient(180deg,rgba(54,127,255,.08),rgba(16,163,127,.07) 58%,rgba(54,127,255,.035));filter:blur(7px);z-index:0;}
-.intro-landing-title{font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.055em;line-height:1.18;margin:-26px 0 0 0;position:relative;z-index:2;color:#172033;background:linear-gradient(90deg,#172033 0%,#223d70 52%,#1c6f72 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 8px 24px rgba(37,99,235,.07);display:flex;flex-direction:column;align-items:center;gap:6px;}
-.intro-title-small{font-size:31px;font-weight:640;}
-.intro-title-large{font-size:44px;font-weight:720;}
-.intro-start-btn{font-size:17px;padding:16px 30px;border-radius:999px;min-width:200px;position:relative;z-index:3;margin-top:2px;}
-@media(max-width:640px){.intro-landing-card{padding:42px 24px 38px;min-height:460px}.intro-title-small{font-size:24px}.intro-title-large{font-size:34px}}
+.intro-ai-face{position:relative;z-index:2;width:132px;height:98px;margin-bottom:2px;animation:introFaceFloat 3.2s ease-in-out infinite;}
+.intro-ai-face img{position:absolute;left:50%;top:50%;max-width:132px;max-height:98px;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 10px 18px rgba(37,99,235,.12));}
+.intro-ai-face .face-smile{opacity:0;animation:introSmileSwap 4.8s ease-in-out infinite;}
+.intro-ai-face::before,.intro-ai-face::after{content:"";position:absolute;border:1px solid rgba(54,127,255,.18);border-radius:999px;inset:8px -28px;z-index:-1;animation:introOrbit 5.8s linear infinite;}
+.intro-ai-face::after{inset:18px -16px;border-color:rgba(16,163,127,.20);animation-duration:7.2s;animation-direction:reverse;}
+.intro-landing-title{font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:39px;font-weight:700;letter-spacing:-.055em;line-height:1.22;margin:0;position:relative;z-index:2;color:#172033;background:linear-gradient(90deg,#172033 0%,#223d70 52%,#1c6f72 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 8px 24px rgba(37,99,235,.07);}
+.intro-ai-chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:2px 0 8px;position:relative;z-index:2;}
+.intro-ai-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:#ffffff;border:1px solid #dbe7ff;color:#2f4b97;font-size:13px;font-weight:750;box-shadow:0 4px 12px rgba(37,99,235,.04)}
+.intro-ai-chip::before{content:"";width:7px;height:7px;border-radius:999px;background:#7ec9b3;box-shadow:0 0 0 3px rgba(126,201,179,.15)}
+.intro-start-btn{font-size:17px;padding:16px 30px;border-radius:999px;min-width:200px;position:relative;z-index:3;}
+.intro-mini-bars{display:flex;align-items:flex-end;gap:4px;height:20px;margin-top:2px;position:relative;z-index:2;opacity:.75}
+.intro-mini-bars span{width:5px;border-radius:999px;background:#7ec9b3;animation:introBar 1.25s ease-in-out infinite}.intro-mini-bars span:nth-child(1){height:8px}.intro-mini-bars span:nth-child(2){height:15px;animation-delay:.12s}.intro-mini-bars span:nth-child(3){height:11px;animation-delay:.24s}.intro-mini-bars span:nth-child(4){height:18px;animation-delay:.36s}.intro-mini-bars span:nth-child(5){height:9px;animation-delay:.48s}
+@keyframes introFaceFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes introSmileSwap{0%,38%,100%{opacity:0}46%,68%{opacity:1}}
+@keyframes introOrbit{to{transform:rotate(360deg)}}
+@keyframes introBar{0%,100%{transform:scaleY(.65);opacity:.45}50%{transform:scaleY(1.08);opacity:1}}
+@media(max-width:640px){.intro-landing-card{padding:42px 24px 38px;min-height:460px}.intro-landing-title{font-size:30px}.intro-ai-face{width:116px;height:86px}.intro-ai-face img{max-width:116px;max-height:86px}.intro-ai-chips{gap:8px}.intro-ai-chip{font-size:12px;padding:7px 10px}}
 </style>
 </head>
 <body>
-
+<div class="system-toast" id="systemToast"><span class="spinner"></span><span id="systemToastText">학습 패턴을 분석 중입니다.</span></div>
 <div class="shell"><div class="container">
 
 <section class="screen centered active" id="screen-participant-setup"><div class="card operator-setup-card"><div class="operator-field"><label for="participantNumberInput">참가자 번호</label><input type="text" id="participantNumberInput" maxlength="30" autocomplete="off" inputmode="numeric"><div class="operator-warning hidden" id="participantNumberWarning" role="alert">참가자 번호를 입력해 주세요.</div></div><div class="operator-actions"><button type="button" class="btn-primary" id="participantConfirmBtn">입력 완료</button></div></div></section>
@@ -158,13 +198,13 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 
 <section class="screen centered" id="screen-start-instruction"><div class="card"><div class="instruction-retry-alert hidden" id="instructionRetryAlert" role="alert">이해 확인 문항 중 올바르게 답하지 못한 문항이 있습니다. 아래 안내문을 다시 읽고 두 학습 시스템의 차이를 충분히 숙지한 뒤 문항에 다시 답해 주세요.</div><div class="instruction-stack"><div class="instruction-block instruction-overview">본 연구는 온라인 학습 환경에서 학습자가 과학 개념을 학습하고 문제를 해결하는 과정을 살펴보기 위한 연구입니다. 최근 온라인 학습 환경에서는 학습자의 응답과 행동 기록을 분석하여 필요한 맞춤형 도움을 제공하는 AI 학습 보조 시스템이 활용되고 있습니다. 이에 본 연구에서는 연구진이 개발한 <span class="instruction-emphasis">맞춤형 AI 학습 시스템</span>과 <span class="instruction-emphasis">표준형 온라인 학습 시스템</span>을 비교하여, 두 환경에서 학습자가 삼투와 확산에 관한 과학 개념을 학습하는 과정을 확인하고자 합니다. 본 연구에는 다음과 같은 두 종류의 학습 시스템이 있으며, 참가자는 두 조건 중 하나에 무작위로 배정됩니다. 아래의 설명을 충분히 읽고 두 학습 시스템의 차이점을 확인해 주세요.</div><div class="system-compare-grid"><div class="instruction-block system-block"><div class="block-label">[맞춤형 AI 학습 시스템]</div><div>맞춤형 AI 학습 시스템은 학습 과정에서 나타나는 <span class="instruction-emphasis">문항별 응답 결과, 응답 시간, 힌트 요청 시점 및 힌트 활용 방식을 실시간으로 분석</span>합니다. 시스템은 분석된 정보를 바탕으로 학습자의 현재 이해 상태를 추정하고, 이에 따라 <span class="instruction-emphasis">후속 문항의 난이도를 조정</span>합니다. 이러한 실시간 분석과 조정은 학습자가 <span class="instruction-emphasis">현재 이해 수준에 적합한 문항과 힌트</span>를 제공받도록 하여 <span class="instruction-emphasis">학습 효과와 문제 해결 수행을 최대화</span>하도록 설계되었습니다. 이 과정은 데이터 분석 알고리즘에 따라 작동하므로, 문항 난이도 조정 및 힌트 생성에는 다소 시간이 걸릴 수 있습니다.</div></div><div class="instruction-block system-block"><div class="block-label">[표준형 온라인 학습 시스템]</div><div>표준형 온라인 학습 시스템은 <span class="instruction-emphasis">AI가 작동하지 않으며</span>, 학습자의 응답 결과, 응답시간, 힌트 요청 시점 및 힌트 활용 방식을 분석하지 않습니다. 이 시스템에서는 <span class="instruction-emphasis">사전에 설정된 문항과 힌트</span>가 고정된 순서로 제공됩니다. 따라서 학습자의 응답이나 학습 행동에 따른 <span class="instruction-emphasis">문항 난이도 조정은 이루어지지 않습니다</span>.</div></div></div></div></div></section>
 
-<section class="screen centered" id="screen-condition-instruction"><div class="card condition-card"><div class="instruction-stack"><div class="instruction-block condition-assignment"><div class="block-label">당신은 표준형 온라인 학습 시스템 조건에 배정되었습니다.</div><div>이 학습 시스템은 AI가 작동하지 않는 시스템으로, 학습 과정에 대한 실시간 분석이나 난이도 및 힌트 조정 없이 사전에 설정된 문항과 힌트가 고정되어 제공됩니다.</div></div></div></div></section>
+<section class="screen centered" id="screen-condition-instruction"><div class="card condition-card"><div class="instruction-stack"><div class="instruction-block condition-assignment"><div class="block-label">당신은 맞춤형 AI 학습 시스템 조건에 배정되었습니다.</div><div>학습 단계에서 맞춤형 AI 학습 시스템이 활성화되어, 응답 결과, 응답 시간, 힌트 요청 시점 및 힌트 활용 방식을 실시간으로 분석합니다. 이를 바탕으로 문항의 난이도를 조정하고, 힌트 요청 시 문항 해결에 필요한 맞춤형 도움을 제공합니다.</div></div></div></div></section>
 
-<section class="screen centered" id="screen-comparison-expectation"><div class="card"><div class="field"><label>당신은 AI가 작동하지 않고 사전에 설정된 문항과 힌트가 제공되는 표준형 온라인 학습 시스템 조건에 배정되어 있습니다. 다른 학습 시스템에 배정된 사람들에 비해 더 잘할 수 있을 것이라고 생각하나요?</label><div class="likert-row" id="preCompare"></div><div class="likert-labels"><span>훨씬 못할 것이다</span><span></span><span></span><span>비슷할 것이다</span><span></span><span></span><span>훨씬 잘할 것이다</span></div></div></div></section>
+<section class="screen centered" id="screen-comparison-expectation"><div class="card"><div class="field"><label>당신은 과제 수행 능력에 따라 AI가 문제의 난이도 및 힌트를 조정하는 맞춤형 AI 학습 시스템 조건에 배정되어 있습니다. 다른 학습 시스템에 배정된 사람들에 비해 더 잘할 수 있을 것이라고 생각하나요?</label><div class="likert-row" id="preCompare"></div><div class="likert-labels"><span>훨씬 못할 것이다</span><span></span><span></span><span>비슷할 것이다</span><span></span><span></span><span>훨씬 잘할 것이다</span></div></div></div></section>
 
 <section class="screen centered" id="screen-learning-readiness"><div class="card condition-card"><div class="instruction-block condition-readiness">이제 배정된 학습 시스템을 통해 학습을 시작합니다. 학습이 시작된 후에는 연구자에게 질문할 수 없으므로, 안내 내용이나 진행 방법에 대해 궁금한 점이 있다면 지금 연구자를 불러 질문해 주세요. 질문을 모두 마치고 학습할 준비가 되었다면, 화면 하단의 다음 버튼을 눌러 주세요.</div></div></section>
 
-<section class="screen centered" id="screen-system-start"><div class="card intro-landing-card"><div class="intro-landing-title"><span class="intro-title-large">표준형 온라인 학습 시스템</span></div><button type="button" class="btn-primary intro-start-btn" id="systemStartBtn">학습 시작하기</button></div></section>
+<section class="screen centered" id="screen-system-start"><div class="card intro-landing-card"><div class="intro-ai-face" aria-hidden="true"><img class="face-normal" src="robot_face_logo.png" alt=""><img class="face-smile" src="robot_face_smile_logo.png" alt=""></div><div class="intro-landing-title">맞춤형 AI 학습 시스템</div><div class="intro-ai-chips" aria-hidden="true"><span class="intro-ai-chip">학습 기록 분석</span><span class="intro-ai-chip">맞춤형 힌트 제공</span><span class="intro-ai-chip">응답 기반 난이도 조정</span></div><button type="button" class="btn-primary intro-start-btn" id="systemStartBtn">학습 시작하기</button><div class="intro-mini-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div></div></section>
 
 <section class="screen" id="screen-understanding-check"><div class="card understanding-card"><div class="understanding-intro">다음은 본 연구에서 사용되는 학습 시스템에 대한 이해를 확인하기 위한 문항입니다. 앞서 제시된 안내를 바탕으로 각 문항에 답해 주세요. 세 문항에 모두 올바르게 응답하면 다음 단계로 넘어갈 수 있습니다.</div><div class="understanding-question"><div class="understanding-question-title">1. 본 연구에서 제공되는 두 학습 시스템은 무엇인가요?</div><div class="understanding-options"><label class="understanding-option"><input type="radio" name="understanding1" value="a"><span>(a) AI 기반 학습 시스템과 교수자가 실시간으로 개입하는 학습 시스템</span></label><label class="understanding-option"><input type="radio" name="understanding1" value="b"><span>(b) AI가 정답을 직접 제공하는 시스템과 힌트를 전혀 제공하지 않는 시스템</span></label><label class="understanding-option"><input type="radio" name="understanding1" value="c"><span>(c) AI가 학습 행동을 분석해 난이도 및 힌트를 조정하는 시스템과, AI 기능 없이 사전에 제작된 힌트를 제공하는 시스템</span></label></div></div><div class="understanding-question"><div class="understanding-question-title">2. 맞춤형 AI 학습 시스템은 학습 중 무엇을 분석하나요?</div><div class="understanding-options"><label class="understanding-option"><input type="radio" name="understanding2" value="a"><span>(a) 참가자의 표정과 정서 상태</span></label><label class="understanding-option"><input type="radio" name="understanding2" value="b"><span>(b) 문항의 정오답과 힌트 사용 등의 학습 행동</span></label><label class="understanding-option"><input type="radio" name="understanding2" value="c"><span>(c) 참가자의 인터넷 사용 기록과 브라우저 설정</span></label></div></div><div class="understanding-question"><div class="understanding-question-title">3. 두 학습 시스템의 가장 큰 차이점은 무엇인가요?</div><div class="understanding-options"><label class="understanding-option"><input type="radio" name="understanding3" value="a"><span>(a) 과제 난이도 및 힌트 조정 여부</span></label><label class="understanding-option"><input type="radio" name="understanding3" value="b"><span>(b) 인터넷 연결 상태 평가</span></label><label class="understanding-option"><input type="radio" name="understanding3" value="c"><span>(c) 올바른 브라우저 설정 선택</span></label></div></div></div></section>
 
@@ -182,8 +222,9 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 <section class="screen centered" id="screen-learning-instruction"><div class="card"><div class="title">학습 단계 안내</div><div class="text">이제 학습을 시작합니다.
 이 단계에서는 삼투와 확산에 대한 여러 문항을 순차적으로 풀게 됩니다.
 
-문제를 풀다가 도움이 필요한 경우, 힌트를 열람할 수 있습니다.
-힌트는 문제당 최대 3번까지 열람할 수 있습니다.
+학습 중 AI는 학습자의 응답을 바탕으로 정보를 기록하고, 학습 패턴 분석 및 난이도 조정을 할 수 있습니다.
+문제를 풀다가 도움이 필요한 경우, AI 힌트를 요청할 수 있습니다.
+힌트는 문제당 최대 3번까지 요청할 수 있습니다.
 
 각 문항은 한 번만 제시되며, 이전 문항으로 돌아갈 수 없습니다.
 따라서 각 문항을 충분히 읽고, 스스로 이해했다고 판단되면 다음 문항으로 넘어가시기 바랍니다.
@@ -191,7 +232,7 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 
 준비가 되면 화면 하단의 다음 버튼을 눌러 주세요.</div></div></section>
 
-<section class="screen" id="screen-learning"><div class="status-bar"><div class="status-title">표준형 온라인 학습 시스템</div></div><div class="card"><div class="top-progress" id="learningProgress"></div><div class="learning-grid"><div><div class="question-pair"><div class="question-block"><div class="question-number" id="lq1Number"></div><div class="question-text" id="lq1Text"></div><div class="options" id="lq1Options"></div></div><div class="question-block"><div class="question-number" id="lq2Number"></div><div class="question-text" id="lq2Text"></div><div class="options" id="lq2Options"></div></div></div><div class="figure-box hidden" id="learningFigureBox"></div></div><div class="hint-panel"><button class="hint-btn" id="learningHintBtn">힌트</button><div class="hint-count" id="hintCountText">남은 힌트 열람 횟수: 3회</div><div class="hint-list" id="learningHintList"></div></div></div></div></section>
+<section class="screen" id="screen-learning"><div class="status-bar"><div class="status-title">맞춤형 AI 학습 시스템</div><div class="status-logo-wrap"><img class="status-logo" id="statusLogo" src="robot_face_logo.png" alt="맞춤형 AI 학습 시스템 로고"></div><div class="status-inline-note" id="statusInlineNote" aria-live="polite"><span class="status-mini-chart" aria-hidden="true"><span></span><span></span><span></span></span><span id="statusInlineText"></span></div></div><div class="card"><div class="top-progress" id="learningProgress"></div><div class="learning-grid"><div><div class="question-pair"><div class="question-block"><div class="question-number" id="lq1Number"></div><div class="question-text" id="lq1Text"></div><div class="options" id="lq1Options"></div></div><div class="question-block"><div class="question-number" id="lq2Number"></div><div class="question-text" id="lq2Text"></div><div class="options" id="lq2Options"></div></div></div><div class="figure-box hidden" id="learningFigureBox"></div></div><div class="hint-side"><div class="hint-panel"><button class="hint-btn" id="learningHintBtn">AI 힌트 요청</button><div class="hint-count" id="hintCountText">남은 힌트 요청: 3회</div></div><div class="hint-list" id="learningHintList"></div></div></div></div></section>
 
 <section class="screen centered" id="screen-postjol-instruction"><div class="card"><div class="text">학습 단계가 종료되었습니다.
 이제 방금 사용한 학습 시스템과 방금까지의 학습에 관한 문항에 응답하게 됩니다.
@@ -204,7 +245,7 @@ button{border:none;border-radius:16px;padding:14px 22px;font-size:16px;font-weig
 최대한 빠르고 정확하게 풀어 주세요.
 답을 입력한 후 Enter 키를 누르면 다음 문제가 제시되고, 3분이 지나면 자동으로 종료됩니다.</div></div></section>
 
-<section class="screen centered" id="screen-distractor"><div class="card"><div class="math-box" id="mathPrompt">12 + 7 = ?</div><div class="field" style="max-width:240px;margin:0 auto"><input type="number" id="mathAnswer" autocomplete="off"><div class="math-enter-hint">다음 문제로 넘어가려면 Enter 키를 눌러주세요</div></div></div></section>
+<section class="screen centered" id="screen-distractor"><div class="card"><div class="math-box" id="mathPrompt">12 + 7 = ?</div><div class="field" style="max-width:360px;margin:0 auto"><input type="number" id="mathAnswer" autocomplete="off"><div class="math-enter-hint">다음 문제로 넘어가려면 Enter 키를 눌러주세요</div></div></div></section>
 
 <section class="screen centered" id="screen-final-instruction"><div class="card"><div class="title">최종 시험 안내</div><div class="text">지금부터는 학습한 내용에 대해 시험을 치르게 됩니다.
 각 문항은 한 번만 제시되며, 이전 문항으로 돌아갈 수 없습니다.
@@ -330,11 +371,11 @@ let secretSpaceTimer = null;
 
 const participantId = 'P_' + Date.now() + '_' + Math.floor(Math.random()*100000);
 const studyData = {
-  version:'odca_non_ai_irb_v11',
+  version:'odca_nonfunctional_ai_irb_v11',
   participantId,
   participantNumber:null,
   participantNumberEnteredAt:null,
-  condition:'Non-AI',
+  condition:'Non-functional AI',
   startedAt:new Date().toISOString(),
   understandingCheck:{ submittedAt:null, passed:false, responses:null, attempts:[] },
   preSurvey:{ submittedAt:null, priorKnowledge1:null, preJOL:null, comparisonExpectation:null, comparisonExpectationSubmittedAt:null },
@@ -376,7 +417,7 @@ const studyData = {
 };
 window.studyData = studyData;
 
-function saveState(){ studyData.lastSavedAt = new Date().toISOString(); if(studyData.clientMeta && studyData.clientMeta.viewport){ studyData.clientMeta.viewport = { width:window.innerWidth || null, height:window.innerHeight || null }; } localStorage.setItem('odcaControlV11_data', JSON.stringify(studyData)); }
+function saveState(){ studyData.lastSavedAt = new Date().toISOString(); if(studyData.clientMeta && studyData.clientMeta.viewport){ studyData.clientMeta.viewport = { width:window.innerWidth || null, height:window.innerHeight || null }; } localStorage.setItem('odcaPseudoAIV11_data', JSON.stringify(studyData)); }
 function qs(id){ return document.getElementById(id); }
 function cloneData(){ return JSON.parse(JSON.stringify(studyData)); }
 window.getCollectedData = cloneData;
@@ -385,7 +426,7 @@ window.exportCollectedData = function(filename){
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   const participantFileId = String(studyData.participantNumber || studyData.participantId).trim().replace(/[\\/:*?"<>|]/g,'_');
-  a.download = filename || `${participantFileId}_odca_non_ai_data.json`;
+  a.download = filename || `${participantFileId}_odca_nonfunctional_ai_data.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -519,7 +560,9 @@ function showScreen(id){
   updateNextButton();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function showToast(text){ return; }
+function showToast(text){ const toast=qs('systemToast'); qs('systemToastText').textContent=text; toast.style.display='flex'; gsap.fromTo(toast,{y:-18,opacity:0,scale:.96},{y:0,opacity:1,scale:1,duration:.28,ease:'power2.out'}); setTimeout(()=>{ gsap.to(toast,{y:-18,opacity:0,duration:.25,onComplete:()=>toast.style.display='none'}); }, 2600); }
+
+gsap.to('#statusLogo', { y:-1.5, repeat:-1, yoyo:true, duration:1.8, ease:'sine.inOut' });
 
 function renderLikert(containerId, name){
   const c=qs(containerId); c.innerHTML='';
@@ -652,6 +695,138 @@ function getFinalState(testId){
 
 function renderFigure(container,key,mode='learning'){ if(!key){ container.classList.add('hidden'); container.innerHTML=''; delete container.dataset.figure; return; } container.classList.remove('hidden'); container.classList.remove('learning-figure','final-figure'); container.classList.add(mode==='final' ? 'final-figure' : 'learning-figure'); container.dataset.figure=key; container.innerHTML=figureMap[key]||''; }
 
+let aiStatusTimer = null;
+const AI_STATUS_MESSAGES = [
+  '난이도 조정 중입니다.',
+  '학습 패턴 분석 중이에요.',
+  '풀이 기록 반영 중입니다.',
+  '응답 패턴을 확인 중입니다.'
+];
+function pickAIStatusMessage(state){
+  const n = Number(state?.setId || 0) + Number(state?.selectionChangeCount || 0);
+  return AI_STATUS_MESSAGES[n % AI_STATUS_MESSAGES.length];
+}
+function hasRepeatedAnswerChange(state){
+  const counts = state?.answerChangeCounts || {};
+  return Object.values(counts).some(v => Number(v || 0) >= 2);
+}
+function hideHeaderStatus(immediate=false){
+  const note = qs('statusInlineNote');
+  if(!note) return;
+  if(aiStatusTimer){
+    clearTimeout(aiStatusTimer);
+    aiStatusTimer = null;
+  }
+  if(immediate){
+    note.classList.remove('show');
+    note.style.opacity = '';
+    note.style.transform = '';
+    return;
+  }
+  if(note.classList.contains('show')){
+    gsap.to(note,{opacity:0,y:-4,duration:.18,onComplete:()=>{
+      note.classList.remove('show');
+      note.style.opacity = '';
+      note.style.transform = '';
+    }});
+  }
+}
+function showHeaderStatus(message){
+  const note = qs('statusInlineNote');
+  const text = qs('statusInlineText');
+  if(!note || !text) return;
+  if(aiStatusTimer){
+    clearTimeout(aiStatusTimer);
+    aiStatusTimer = null;
+  }
+  text.textContent = message || '';
+  note.classList.add('show');
+  gsap.fromTo(note,{opacity:0,y:-4},{opacity:1,y:0,duration:.22,ease:'power2.out'});
+  aiStatusTimer = setTimeout(()=>{
+    hideHeaderStatus(false);
+    aiStatusTimer = null;
+  }, 2800);
+}
+function stopAIStatus(){
+  hideHeaderStatus(true);
+}
+function wrapHintText(text, maxLen=18){
+  const raw = String(text || '').replace(/\s+/g, ' ').trim();
+  if(!raw) return '';
+  const words = raw.split(' ');
+  const lines = [];
+  let line = '';
+  for(const word of words){
+    if(!line){
+      if(word.length > maxLen){
+        for(let i=0;i<word.length;i+=maxLen) lines.push(word.slice(i,i+maxLen));
+        line = '';
+      } else line = word;
+      continue;
+    }
+    if((line + ' ' + word).length <= maxLen){
+      line += ' ' + word;
+    } else {
+      lines.push(line);
+      if(word.length > maxLen){
+        for(let i=0;i<word.length;i+=maxLen) lines.push(word.slice(i,i+maxLen));
+        line = '';
+      } else line = word;
+    }
+  }
+  if(line) lines.push(line);
+  return lines.join('\n');
+}
+function typeText(el, text, speed=18, done){
+  const full = String(text || '');
+  el.textContent = '';
+  let i = 0;
+  function step(){
+    el.textContent = full.slice(0, i);
+    i += 1;
+    if(i <= full.length){
+      setTimeout(step, speed);
+    } else if(typeof done === 'function'){
+      done();
+    }
+  }
+  step();
+}
+function createAIHintItem(text, animate=true, mode='hint'){
+  const item = document.createElement('div');
+  item.className = 'hint-item show';
+  const isIdle = mode === 'idle';
+  const imageSrc = isIdle ? 'robot_idle_presenting.png' : 'robot_hint_present.png';
+  item.innerHTML = `<div class="ai-hint-stage"><div class="hint-bubble ${isIdle ? 'idle' : ''}"><div class="body"><div class="ghost"></div><div class="typed"></div></div></div><div class="ai-robot-wrap ${isIdle ? 'idle-robot' : ''}"><img class="hint-avatar" src="${imageSrc}" alt="" aria-hidden="true"></div></div>`;
+  const ghost = item.querySelector('.ghost');
+  const typed = item.querySelector('.typed');
+  const prepared = isIdle ? wrapHintText(text, 24) : wrapHintText(text, 24);
+  ghost.textContent = prepared || '';
+  if(animate){
+    setTimeout(()=>{
+      typeText(typed, prepared, isIdle ? 22 : 17, ()=>{
+        if(isIdle){
+          typed.insertAdjacentHTML('beforeend', '<span class="ai-thinking-dots"><span></span><span></span><span></span></span>');
+        } else {
+          const btn = qs('learningHintBtn');
+          if(btn) btn.dataset.busy = '0';
+        }
+      });
+    }, isIdle ? 560 : 700);
+  } else {
+    item.classList.add('instant');
+    typed.textContent = prepared || '';
+    if(isIdle){
+      typed.insertAdjacentHTML('beforeend', '<span class="ai-thinking-dots"><span></span><span></span><span></span></span>');
+    }
+  }
+  return item;
+}
+function showAIStatus(message, state){
+  if(!state) return;
+  state.aiStatusShown = true;
+  showHeaderStatus(message);
+}
 function renderLearning(){
   const progressEl = qs('learningProgress');
   if(progressEl) progressEl.textContent = `${learningIndex + 1}/${learningSets.length}`;
@@ -662,38 +837,59 @@ function renderLearning(){
   ensureQuestionMetricContainer(state, [set.q1.id, set.q2.id]);
   qs('lq1Number').textContent=set.q1.id; qs('lq2Number').textContent=set.q2.id;
   qs('lq1Text').textContent=set.q1.text; qs('lq2Text').textContent=set.q2.text;
+  const hintList = qs('learningHintList');
+  stopAIStatus();
+  if(!(state.selectionChangeCount > 0)) state.aiStatusShown = false;
+  const handleSelect = (qid, idx)=>{
+    const prev = state.answers[qid];
+    const changed = prev !== undefined && prev !== null && prev !== idx;
+    state.answers[qid]=idx;
+    recordQuestionSelection(state, qid, idx);
+    const repeatedChange = changed && Number(state.answerChangeCounts[qid] || 0) >= 2;
+    saveState();
+    rerender();
+    if(changed){
+      if(repeatedChange && !state.responseChangeStatusShown){
+        showAIStatus('응답 변화를 기록하고 있어요.', state);
+        state.responseChangeStatusShown = true;
+        saveState();
+      } else if(!state.aiStatusShown){
+        showAIStatus(pickAIStatusMessage(state), state);
+        saveState();
+      }
+    }
+    updateNextButton();
+  };
   const rerender = ()=>{
-    optionList(qs('lq1Options'), `l1_${set.setId}`, set.q1.options, state.answers[set.q1.id], idx=>{ state.answers[set.q1.id]=idx; recordQuestionSelection(state, set.q1.id, idx); saveState(); rerender(); updateNextButton(); });
-    optionList(qs('lq2Options'), `l2_${set.setId}`, set.q2.options, state.answers[set.q2.id], idx=>{ state.answers[set.q2.id]=idx; recordQuestionSelection(state, set.q2.id, idx); saveState(); rerender(); updateNextButton(); });
+    optionList(qs('lq1Options'), `l1_${set.setId}`, set.q1.options, state.answers[set.q1.id], idx=>handleSelect(set.q1.id, idx));
+    optionList(qs('lq2Options'), `l2_${set.setId}`, set.q2.options, state.answers[set.q2.id], idx=>handleSelect(set.q2.id, idx));
   };
   rerender();
   renderFigure(qs('learningFigureBox'), set.figure, 'learning');
-  const hintList = qs('learningHintList'); hintList.innerHTML='';
+  hintList.innerHTML='';
   if(state.hintsShown.length){
     const latestIndex = state.hintsShown.length - 1;
-    const item=document.createElement('div'); item.className='hint-item show';
-    item.innerHTML=`<div class="num">${latestIndex+1}단계 힌트</div><div class="body"></div>`;
+    const item=createAIHintItem(state.hintsShown[latestIndex], false, 'hint');
     hintList.appendChild(item);
-    item.querySelector('.body').textContent=state.hintsShown[latestIndex];
   }
-  qs('hintCountText').textContent = `남은 힌트 열람 횟수: ${Math.max(0, 3 - state.hintClicks)}회`;
-  qs('learningHintBtn').disabled = state.hintClicks >= 3;
+  qs('hintCountText').textContent = `남은 힌트 요청: ${3 - state.hintClicks}회`;
+  qs('learningHintBtn').dataset.busy='0';
   qs('learningHintBtn').onclick = ()=>{
-    if(state.hintClicks >= 3) return;
+    if(qs('learningHintBtn').dataset.busy==='1') return;
+    if(state.hintClicks >= 3){ showToast('힌트 요청 횟수가 초과되었습니다.'); return; }
     state.hintClicks += 1;
     recordHintEvent(state, set.setId, state.hintClicks);
-    const nextHint = set.hints[state.hintClicks-1];
+    const nextHint = set.hints[state.hintClicks-1] || '이 문항의 조건을 다시 확인해 보세요.';
     state.hintsShown.push(nextHint);
     hintList.innerHTML='';
-    const item=document.createElement('div'); item.className='hint-item show';
-    item.innerHTML=`<div class="num">${state.hintClicks}단계 힌트</div><div class="body"></div>`;
+    qs('learningHintBtn').dataset.busy='1';
+    const item=createAIHintItem(nextHint, true, 'hint');
     hintList.appendChild(item);
-    item.querySelector('.body').textContent = nextHint;
-    qs('hintCountText').textContent = `남은 힌트 열람 횟수: ${Math.max(0, 3 - state.hintClicks)}회`;
-    qs('learningHintBtn').disabled = state.hintClicks >= 3;
+    qs('hintCountText').textContent = `남은 힌트 요청: ${3 - state.hintClicks}회`;
     saveState();
   };
 }
+
 
 function renderFinal(){
   const progressEl = qs('finalProgress');
@@ -1056,7 +1252,7 @@ function isMissingV11ColumnError(error){
 }
 
 async function sendDataToSupabase(force=false){
-  const submissionKey = `odcaControlV11_submitted_${studyData.participantId}`;
+  const submissionKey = `odcaPseudoAIV11_submitted_${studyData.participantId}`;
   if(!force && localStorage.getItem(submissionKey) === '1') return { ok:true, skipped:true };
 
   updateClientMeta();
